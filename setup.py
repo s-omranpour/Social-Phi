@@ -9,7 +9,7 @@ setup(
     author='Soroush Omranpour',
     author_email='soroush.333@gmail.com',
     keywords='information theory, integrated information, consciousness, social network',
-    packages=['deepnote'],
+    packages=['social_phi'],
     python_requires='>=3.7, <4',
     install_requires=[
         'numpy >= 1.7.0'
