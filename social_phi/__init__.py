@@ -1,4 +1,5 @@
 from typing import Dict
+from collections import Counter
 import numpy as np
 
 from .signal import get_signal
@@ -6,15 +7,17 @@ from .phi import phi_ar, calc_phi_for_signal, fill_nans_with_mean
 
 def phi_for_act_dict(
     acts : Dict[str, list], 
-    fill_nans: bool = True, 
+    time_scale : int = 24*3600,
     window : int = 30, 
     binarize : bool = False,
     base : float = np.e,
-    var_threshold : float = 0.01):
+    var_threshold : float = 0.01,
+    fill_nans: bool = True):
     '''
     ** parameters **
 
     acts = a dictionary with keys equal to user_id and values equal to a list of timebins in which the corresponding user was active
+    time_scale = in seconds. used as the scale of time for future calculations
     fill_nans = whether to fill nan values occuring during calculation of phi with means.
     window = time delay used in calculating phi
     binarize = whether to binarize the activity signal (instead of number of activites per timebin use 1 as active and 0 as inactive)
@@ -29,7 +32,8 @@ def phi_for_act_dict(
     n_users = list of int indicating number of users used for calculating phi in the k-th timestep.
 
     '''
-
+    for u in acts:
+        acts[u] = dict(Counter([int(t // time_scale) for t in acts[u]]))
     sig = get_signal(acts, binarize)
     phis, n_users = calc_phi_for_signal(sig, win_len=window, min_var=var_threshold, base=base)
     if fill_nans:
