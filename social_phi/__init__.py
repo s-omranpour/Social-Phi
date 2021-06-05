@@ -1,5 +1,4 @@
 from typing import Dict
-from collections import Counter
 import numpy as np
 
 from .signal import get_signal
@@ -32,13 +31,11 @@ def phi_for_act_dict(
     n_users = list of int indicating number of users used for calculating phi in the k-th timestep.
 
     '''
-    for u in acts:
-        acts[u] = dict(Counter([int(t // time_scale) for t in acts[u]]))
-    sig = get_signal(acts, binarize)
-    phis, n_users = calc_phi_for_signal(sig, win_len=window, min_var=var_threshold, base=base)
-    if fill_nans:
-        return fill_nans_with_mean(phis), n_users
-    return phis, n_users
+    
+    sig = get_signal(acts, time_scale=time_scale, binarize=binarize)
+    return phi_for_act_sig(
+        sig, base=base, window=window, var_threshold=var_threshold, fill_nans=fill_nans
+    )
 
 
 def phi_for_act_sig(
@@ -65,7 +62,7 @@ def phi_for_act_sig(
 
     '''
 
-    phis, n_users = calc_phi_for_signal(sig, win_len=window, min_var=var_threshold, base=base)
+    phis, n_users, var = calc_phi_for_signal(sig, win_len=window, min_var=var_threshold, base=base)
     if fill_nans:
-        return fill_nans_with_mean(phis), n_users
-    return phis, n_users
+        return fill_nans_with_mean(phis), n_users, var
+    return phis, n_users, var

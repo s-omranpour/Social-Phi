@@ -1,4 +1,5 @@
 import numpy as np
+from collections import Counter
 
 
 def get_single_signal(act, binarize=False):
@@ -10,12 +11,13 @@ def get_single_signal(act, binarize=False):
         sig[step - b] = v
     return sig, a, b
 
-def get_signal(activities, binarize=False):
+def get_signal(activities, time_scale=24*3600, binarize=False):
     min_step = 999999999999999
     max_step = 0
     users_acts = {}
     
     for user, act in activities.items():
+        act = dict(Counter([int(t // time_scale) for t in act]))
         sig, M, m = get_single_signal(act, binarize)
         min_step = min(m, min_step)
         max_step = max(M, max_step)

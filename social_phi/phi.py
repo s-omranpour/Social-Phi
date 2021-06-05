@@ -27,6 +27,7 @@ def phi_ar(X1, X2, base=np.e):
 def calc_phi_for_signal(sig, win_len=100, min_var=0.01, base=np.e):
     phis = []
     num_users = []
+    variances = []
     X = sig
     hop_len = win_len
     n = (X.shape[1] - win_len) // hop_len    
@@ -45,7 +46,8 @@ def calc_phi_for_signal(sig, win_len=100, min_var=0.01, base=np.e):
             phi = np.nan
         phis += [phi]
         num_users += [len(valid_users)]
-    return np.array(phis), np.array(num_users)
+        variances += [sum(var)]
+    return np.array(phis), np.array(num_users), np.array(variances)
 
 def nan_mean_value(t_arr, nan_idx):
     arr = t_arr.copy()
