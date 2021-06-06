@@ -1,17 +1,16 @@
 from typing import Dict
 import numpy as np
 
-from .signal import get_signal
+from .signal import get_signal, get_event_signal
 from .phi import phi_ar, calc_phi_for_signal, fill_nans_with_mean
 
 def phi_for_act_dict(
     acts : Dict[str, list], 
     time_scale : int = 24*3600,
     window : int = 30, 
+    hop : int = 10,
     binarize : bool = False,
-    base : float = np.e,
-    var_threshold : float = 0.01,
-    fill_nans: bool = True):
+    base : float = np.e):
     '''
     ** parameters **
 
@@ -34,16 +33,15 @@ def phi_for_act_dict(
     
     sig = get_signal(acts, time_scale=time_scale, binarize=binarize)
     return phi_for_act_sig(
-        sig, base=base, window=window, var_threshold=var_threshold, fill_nans=fill_nans
+        sig, base=base, window=window, hop=hop, fill_nans=fill_nans
     )
 
 
 def phi_for_act_sig(
     sig : np.ndarray, 
-    fill_nans: bool = True, 
     window : int = 30, 
-    base : float = np.e,
-    var_threshold : float = 0.01):
+    hop : int = 10,
+    base : float = np.e):
     '''
     ** parameters **
 
@@ -62,7 +60,5 @@ def phi_for_act_sig(
 
     '''
 
-    phis, n_users, var = calc_phi_for_signal(sig, win_len=window, min_var=var_threshold, base=base)
-    if fill_nans:
-        return fill_nans_with_mean(phis), n_users, var
-    return phis, n_users, var
+    phis, n_users = calc_phi_for_signal(sig, win_len=window, hop_len=hop, base=base)
+    return fill_nans_with_mean(phis), phis, n_users
