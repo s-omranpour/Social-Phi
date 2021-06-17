@@ -80,7 +80,7 @@ def main(repo_name):
         'issues': issues[::-1],
         'activities': act
     }
-    pickle.dump(stats, open(f'data/{'-'.join(repo_name.split('/'))}.pkl', 'wb'))
+    pickle.dump(stats, open(f"data/{'-'.join(repo_name.split('/'))}.pkl", 'wb'))
     
     
 if __name__ == '__main__':
