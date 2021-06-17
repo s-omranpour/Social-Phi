@@ -33,17 +33,18 @@ def calc_phi_for_signal(sig, win_len=100, hop_len=1, base=np.e):
     for i in tqdm(range(n)):
         X1 = X[:, i*hop_len : i*hop_len + win_len]
         X2 = X[:, (i+1)*hop_len : (i+1)*hop_len + win_len]
+        Xf = X[:, i*hop_len : (i+1)*hop_len + win_len]
         phi = np.nan
         
         ## filtering zero var users
-        valid_users = np.where((np.var(X1, axis=1) + np.var(X2, axis=1)) > 0)[0]
-        X1 = X1[valid_users]
-        X2 = X2[valid_users]
+        X1 = X1[np.var(Xf, axis=1) > 0]
+        X2 = X2[np.var(Xf, axis=1) > 0]
         
         m = X1.shape[0]
         n_user = m
+        users_sorted = np.argsort(np.var(Xf, axis=1))
         for i in range(0,m,max(1, m//20)):
-            top_users = np.argsort(np.var(X1, axis=1) + np.var(X2, axis=1))[i:]
+            top_users = users_sorted[i:]
             n_user = len(top_users)
             if n_user < 2:
                 continue
@@ -56,31 +57,3 @@ def calc_phi_for_signal(sig, win_len=100, hop_len=1, base=np.e):
         phis += [phi]
         num_users += [n_user]
     return np.array(phis), np.array(num_users)
-
-def nan_mean_value(t_arr, nan_idx):
-    arr = t_arr.copy()
-    idx1 = idx2 = None
-    if np.isnan(arr[0]):
-        arr = np.append(0, arr)
-        nan_idx += 1
-    if np.isnan(arr[-1]):
-        arr = np.append(arr, 0)
-    for i in range(nan_idx-1,-1,-1):
-        if not np.isnan(arr[i]):
-            idx1 = i
-            break
-            
-    for i in range(nan_idx+1, len(arr)):
-        if not np.isnan(arr[i]):
-            idx2 = i
-            break 
-
-    m = (arr[idx2] - arr[idx1]) / (idx2 - idx1)
-    return arr[idx1] + m*(nan_idx - idx1)
-
-def fill_nans_with_mean(arr):
-    arr = arr.copy()
-    nans = np.where(np.isnan(arr))[0]
-    for nan in nans:
-        arr[nan] = nan_mean_value(arr, nan)
-    return arr

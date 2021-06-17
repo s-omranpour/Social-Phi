@@ -2,7 +2,8 @@ import numpy as np
 from collections import Counter
 
 
-def get_single_signal(act, binarize=False):
+def get_single_signal(act, time_scale=24*3600, binarize=False):
+    act = dict(Counter([int(t // time_scale) for t in act]))
     steps = sorted(act.keys()) #act
     a,b = steps[-1], steps[0]
     sig = np.zeros(shape=(a-b+1,))
@@ -17,8 +18,7 @@ def get_signal(activities, time_scale=24*3600, binarize=False):
     users_acts = {}
     
     for user, act in activities.items():
-        act = dict(Counter([int(t // time_scale) for t in act]))
-        sig, M, m = get_single_signal(act, binarize)
+        sig, M, m = get_single_signal(act, time_scale, binarize)
         min_step = min(m, min_step)
         max_step = max(M, max_step)
         users_acts[user] = {'min': m, 'max': M, 'sig': sig}

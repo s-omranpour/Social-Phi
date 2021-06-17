@@ -1,8 +1,10 @@
 from typing import Dict
 import numpy as np
+import pandas as pd
 
-from .signal import get_signal, get_event_signal
-from .phi import phi_ar, calc_phi_for_signal, fill_nans_with_mean
+from .signal import get_signal, get_single_signal
+from .phi import phi_ar, calc_phi_for_signal
+from .utils import fill_nans_with_mean, sliding_window
 
 def phi_for_act_dict(
     acts : Dict[str, list], 
@@ -62,3 +64,17 @@ def phi_for_act_sig(
 
     phis, n_users = calc_phi_for_signal(sig, win_len=window, hop_len=hop, base=base)
     return fill_nans_with_mean(phis), phis, n_users
+
+def find_best_hop(
+    sig : np.ndarray, 
+    window : int = 30, 
+    min_hop : int = 1,
+    max_hop : int = 7):
+
+    res = {}
+    for hop in range(min_hop, max_hop+1):
+        phis, _ = calc_phi_for_signal(sig, win_len=window, hop_len=hop, base=2)
+        nans = np.isnan(phis).sum()
+        avg_phi = np.mean(phis[~np.isnan(phis)])
+        res[hop] = {'num_nans' : nans, 'num_valids': len(phis) - nans, 'avg_phi': avg_phi}
+    return pd.DataFrame(res).T
