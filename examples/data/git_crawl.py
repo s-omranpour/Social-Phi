@@ -88,7 +88,9 @@ if __name__ == '__main__':
     repos = [
         'pytorch/pytorch', 'microsoft/terminal', 'microsoft/TypeScript', 'facebook/react' , 
         'facebook/react-native' , 'huggingface/transformers', 'apache/superset', 'apache/spark',
-        'tensorflow/tensorflow', 'tensorflow/tensor2tensor', 'vuejs/vue', 'huggingface/datasets'
+        'tensorflow/tensorflow', 'tensorflow/tensor2tensor', 'vuejs/vue', 'huggingface/datasets',
+        'microsoft/vscode'
     ]
     for repo in repos:
+        print(f'crawling {repo}...'
         main(repo)
