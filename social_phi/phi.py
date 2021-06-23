@@ -25,20 +25,23 @@ def phi_ar(X1, X2, base=np.e):
     return (term1 - term2)/ np.log(base)
 
 
-def calc_phi_for_signal(sig, win_len=100, hop_len=1, base=np.e):
+def calc_phi_for_signal(sig, win_len=100, hop_len=1, base=np.e, silent=False):
     phis = []
     num_users = []
     X = sig
-    n = (X.shape[1] - win_len) // hop_len    
-    for i in tqdm(range(n)):
+    n = (X.shape[1] - win_len) // hop_len 
+    prog = lambda x: x if silent else tqdm(x)
+    for i in prog(range(n)):
         X1 = X[:, i*hop_len : i*hop_len + win_len]
         X2 = X[:, (i+1)*hop_len : (i+1)*hop_len + win_len]
         Xf = X[:, i*hop_len : (i+1)*hop_len + win_len]
         phi = np.nan
         
         ## filtering zero var users
-        X1 = X1[np.var(Xf, axis=1) > 0]
-        X2 = X2[np.var(Xf, axis=1) > 0]
+        valid_users = np.var(Xf, axis=1) > 0
+        X1 = X1[valid_users]
+        X2 = X2[valid_users]
+        Xf = Xf[valid_users]
         
         m = X1.shape[0]
         n_user = m

@@ -1,6 +1,7 @@
 from typing import Dict
 import numpy as np
 import pandas as pd
+from tqdm.notebook import tqdm
 
 from .signal import get_signal, get_single_signal
 from .phi import phi_ar, calc_phi_for_signal
@@ -12,7 +13,8 @@ def phi_for_act_dict(
     window : int = 30, 
     hop : int = 10,
     binarize : bool = False,
-    base : float = np.e):
+    base : float = np.e,
+    silent : bool = False):
     '''
     ** parameters **
 
@@ -35,7 +37,7 @@ def phi_for_act_dict(
     
     sig = get_signal(acts, time_scale=time_scale, binarize=binarize)
     return phi_for_act_sig(
-        sig, base=base, window=window, hop=hop, fill_nans=fill_nans
+        sig, base=base, window=window, hop=hop, fill_nans=fill_nans, silent=silent
     )
 
 
@@ -43,7 +45,8 @@ def phi_for_act_sig(
     sig : np.ndarray, 
     window : int = 30, 
     hop : int = 10,
-    base : float = np.e):
+    base : float = np.e, 
+    silent : bool = False):
     '''
     ** parameters **
 
@@ -62,19 +65,21 @@ def phi_for_act_sig(
 
     '''
 
-    phis, n_users = calc_phi_for_signal(sig, win_len=window, hop_len=hop, base=base)
+    phis, n_users = calc_phi_for_signal(sig, win_len=window, hop_len=hop, base=base, silent=silent)
     return fill_nans_with_mean(phis), phis, n_users
 
-def find_best_hop(
+def experiment_hop_range(
     sig : np.ndarray, 
     window : int = 30, 
     min_hop : int = 1,
-    max_hop : int = 7):
+    max_hop : int = 7, 
+    silent : bool = False):
 
     res = {}
-    for hop in range(min_hop, max_hop+1):
-        phis, _ = calc_phi_for_signal(sig, win_len=window, hop_len=hop, base=2)
+    prog = lambda x: x if silent else tqdm
+    for hop in prog(range(min_hop, max_hop+1)):
+        phis, _ = calc_phi_for_signal(sig, win_len=window, hop_len=hop, base=2, silent=True)
         nans = np.isnan(phis).sum()
         avg_phi = np.mean(phis[~np.isnan(phis)])
-        res[hop] = {'num_nans' : nans, 'num_valids': len(phis) - nans, 'avg_phi': avg_phi}
+        res[hop] = {'num_nans' : nans, 'num_valids': len(phis) - nans, 'vnr': (len(phis) - nans)/nans, 'avg_phi': avg_phi}
     return pd.DataFrame(res).T

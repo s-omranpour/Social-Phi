@@ -1,11 +1,11 @@
 import numpy as np
 from tqdm.notebook import tqdm
 
-def sliding_window(arr, func=np.mean, window=10, hop=10):
+def sliding_window(arr, agg_func=np.mean, window=10, hop=10):
     res = []
     n = (arr.shape[-1] - window) // hop
     for i in range(n):
-        res += [func(arr[..., i*hop : i*hop + window], axis=1)]
+        res += [agg_func(arr[..., i*hop : i*hop + window], axis=1)]
     return np.stack(res, axis=1)
 
 def nan_mean_value(t_arr, nan_idx):
