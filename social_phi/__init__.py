@@ -76,7 +76,7 @@ def experiment_hop_range(
     silent : bool = False):
 
     res = {}
-    prog = lambda x: x if silent else tqdm
+    prog = lambda x: x if silent else tqdm(x)
     for hop in prog(range(min_hop, max_hop+1)):
         phis, _ = calc_phi_for_signal(sig, win_len=window, hop_len=hop, base=2, silent=True)
         nans = np.isnan(phis).sum()
