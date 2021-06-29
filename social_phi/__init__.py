@@ -96,6 +96,7 @@ def experiment_hop_range(
         nans = np.isnan(phis).sum()
         avg_phi = np.mean(phis[~np.isnan(phis)])
         res[hop] = {
+            'hop' : hop,
             'num_nans' : nans, 
             'num_valids': len(phis) - nans, 
             'vnr': (len(phis) - nans)/nans, 
