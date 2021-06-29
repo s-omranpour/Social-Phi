@@ -86,20 +86,23 @@ def experiment_hop_range(
     window : int = 30, 
     min_hop : int = 1,
     max_hop : int = 7, 
-    nan_policy : str = 'zero',
     silent : bool = False):
 
     res = {}
     prog = lambda x: x if silent else tqdm(x)
     for hop in prog(range(min_hop, max_hop+1)):
-        phis, _ = phi_for_act_sig(sig, window, hop, 2, nan_policy, True)
+        phis, _ = calc_phi_for_signal(sig, win_len=window, hop_len=hop, base=2, silent=True)
         nans = np.isnan(phis).sum()
-        avg_phi = np.mean(phis[~np.isnan(phis)])
+        zero_phis = phis.copy()
+        zero_phis[np.isnan(zero_phis)] = 0.
+        
         res[hop] = {
             'hop' : hop,
             'num_nans' : nans, 
             'num_valids': len(phis) - nans, 
             'vnr': (len(phis) - nans)/nans, 
-            'avg_phi': avg_phi
+            'raw_avg_phi': np.mean(phis[~np.isnan(phis)]),
+            'zeroed_avg_phi': np.mean(zero_phis),
+            'linear_avg_phi' : np.mean(fill_nans_with_mean(phis))
         }
     return pd.DataFrame(res).T
