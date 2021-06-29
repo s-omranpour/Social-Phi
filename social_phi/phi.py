@@ -53,7 +53,7 @@ def calc_phi_for_signal(sig, win_len=100, hop_len=1, base=np.e, silent=False):
                 continue
 
             res = phi_ar(X1[top_users], X2[top_users], base=base)
-            if res > 0 and res <= n_user:
+            if res >= 0 and res <= n_user:
                 phi = res
                 break
 
