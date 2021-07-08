@@ -25,7 +25,7 @@ def phi_ar(X1, X2, base=np.e):
     return (term1 - term2)/ np.log(base)
 
 
-def calc_phi_for_signal(sig, win_len=100, hop_len=1, base=np.e, silent=False):
+def calc_phi_for_signal(sig, win_len=100, hop_len=1, base=np.e, filter_resol=20, silent=False):
     phis = []
     num_users = []
     X = sig
@@ -46,7 +46,7 @@ def calc_phi_for_signal(sig, win_len=100, hop_len=1, base=np.e, silent=False):
         m = X1.shape[0]
         n_user = m
         users_sorted = np.argsort(np.var(Xf, axis=1))
-        for i in range(0,m,max(1, m//20)):
+        for i in range(0,m,max(1, m//filter_resol)):
             top_users = users_sorted[i:]
             n_user = len(top_users)
             if n_user < 2:
