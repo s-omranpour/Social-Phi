@@ -14,6 +14,7 @@ def phi_for_act_dict(
     hop : int = 10,
     binarize : bool = False,
     base : float = np.e,
+    filter_resol : int = 20,
     nan_policy : str = 'zero',
     silent : bool = False):
     '''
@@ -42,7 +43,7 @@ def phi_for_act_dict(
     
     sig = get_signal(acts, time_scale=time_scale, binarize=binarize)
     return phi_for_act_sig(
-        sig, base=base, window=window, hop=hop, nan_policy=nan_policy, silent=silent
+        sig, base=base, window=window, hop=hop, filter_resol=filter_resol, nan_policy=nan_policy, silent=silent
     )
 
 
@@ -51,6 +52,7 @@ def phi_for_act_sig(
     window : int = 30, 
     hop : int = 10,
     base : float = np.e, 
+    filter_resol : int = 20,
     nan_policy : str = 'zero',
     silent : bool = False):
     '''
@@ -74,7 +76,7 @@ def phi_for_act_sig(
 
     '''
 
-    phis, n_users = calc_phi_for_signal(sig, win_len=window, hop_len=hop, base=base, silent=silent)
+    phis, n_users = calc_phi_for_signal(sig, win_len=window, hop_len=hop, base=base, filter_resol=filter_resol, silent=silent)
     if nan_policy == 'zero':
         phis[np.isnan(phis)] = 0.
     elif nan_policy == 'linear':
@@ -86,12 +88,13 @@ def experiment_hop_range(
     window : int = 30, 
     min_hop : int = 1,
     max_hop : int = 7, 
+    filter_resol : int = 20,
     silent : bool = False):
 
     res = {}
     prog = lambda x: x if silent else tqdm(x)
     for hop in prog(range(min_hop, max_hop+1)):
-        phis, _ = calc_phi_for_signal(sig, win_len=window, hop_len=hop, base=2, silent=True)
+        phis, _ = calc_phi_for_signal(sig, win_len=window, hop_len=hop, base=2, filter_resol=filter_resol, silent=True)
         nans = np.isnan(phis).sum()
         zero_phis = phis.copy()
         zero_phis[np.isnan(zero_phis)] = 0.
