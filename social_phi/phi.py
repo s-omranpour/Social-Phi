@@ -34,19 +34,17 @@ def calc_phi_for_signal(sig, win_len=100, hop_len=1, base=np.e, silent=False):
     for i in prog(range(n)):
         X1 = X[:, i*hop_len : i*hop_len + win_len]
         X2 = X[:, (i+1)*hop_len : (i+1)*hop_len + win_len]
-        Xf = X[:, i*hop_len : (i+1)*hop_len + win_len]
         phi = np.nan
         
         ## filtering zero var users
-        valid_users = np.var(Xf, axis=1) > 0
+        valid_users = np.var(X1, axis=1) > 0
         X1 = X1[valid_users]
         X2 = X2[valid_users]
-        Xf = Xf[valid_users]
         
         m = X1.shape[0]
         n_user = m
-        users_sorted = np.argsort(np.var(Xf, axis=1))
-        for i in range(0,m,max(1, m//20)):
+        users_sorted = np.argsort(np.var(X1, axis=1))
+        for i in range(0, m, max(1, m//20)):
             top_users = users_sorted[i:]
             n_user = len(top_users)
             if n_user < 2:
